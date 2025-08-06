@@ -18,7 +18,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 	endif()
 endif()
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.5)
 
 
 #-----------------------------------------------------------------------------
@@ -210,6 +210,7 @@ option(USE_SHARED "Build shared libraries"  OFF)
 option(USE_LIBXML "Use LibXml2 parser"      ON)
 option(USE_EXPAT  "Use expat parser"        OFF)
 option(USE_STATIC_MSVC_RUNTIME "Use static version of the MSVC run-time library" OFF)
+option(BUILD_MAYA_PLUGIN "Build COLLADAMaya plugin (requires Maya SDK)" OFF)
 
 #adding xml2
 if (USE_LIBXML)
@@ -282,6 +283,15 @@ add_subdirectory(COLLADAFramework)
 add_subdirectory(GeneratedSaxParser)
 add_subdirectory(COLLADASaxFrameworkLoader)
 add_subdirectory(COLLADAStreamWriter)
+
+# building COLLADAMaya plugin and optionally dae2ma importer
+if(BUILD_MAYA_PLUGIN)
+	add_subdirectory(COLLADAMaya)
+	# Only build dae2ma if import is enabled
+	if(ENABLE_DAE2MA_IMPORT)
+		add_subdirectory(dae2ma)
+	endif()
+endif()
 
 # building COLLADAValidator app
 add_subdirectory(COLLADAValidator)

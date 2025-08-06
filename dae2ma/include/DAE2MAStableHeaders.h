@@ -35,7 +35,7 @@
 #include <map>
 //#include <hash_map>
 
-#include "COLLADASaxFWLColladaParserAutoGen15Attributes.h"
+#include "generated15/COLLADASaxFWLColladaParserAutoGen15Attributes.h"
 
 // base utils
 #include <COLLADABU.h>

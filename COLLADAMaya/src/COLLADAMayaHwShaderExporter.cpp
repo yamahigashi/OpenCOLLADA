@@ -34,9 +34,10 @@
 #define WIN32
 #endif
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
 #include "cgfxShaderNode.h"
-
 #include "cgfxFindImage.h"
+#endif
 
 #include <assert.h>
 
@@ -63,6 +64,7 @@ namespace COLLADAMaya
         String workspaceName = workspace.asChar();
 
         MFnDependencyNode fnNode ( shaderNode );
+#ifdef COLLADA_MAYA_CGFX_ENABLED
         if ( fnNode.typeId () == cgfxShaderNode::sId )
         {
             // Create a cgfx shader node
@@ -72,6 +74,7 @@ namespace COLLADAMaya
             return exportCgfxShader( shaderNodeCgfx );
         }
         else
+#endif
         {
             // Writes the current effect profile into the collada document
             mEffectProfile->openProfile ();
@@ -82,6 +85,7 @@ namespace COLLADAMaya
         }
     }
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
     // ---------------------------------
     bool HwShaderExporter::exportCgfxShader ( cgfxShaderNode* shaderNodeCgfx )
     {
@@ -1532,5 +1536,6 @@ namespace COLLADAMaya
 
         return withoutTechniqueString;
     }
+#endif // COLLADA_MAYA_CGFX_ENABLED
 
 }

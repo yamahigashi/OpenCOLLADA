@@ -27,7 +27,9 @@
 
 #include "COLLADABUIDList.h"
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
 #include <cgfxAttrDef.h>
+#endif
 
 #include <maya/MObject.h>
 
@@ -177,6 +179,7 @@ namespace COLLADAMaya
         /** Exports the data for a custom hardware shader node. */
         void exportCustomHwShaderNode ( COLLADASW::InstanceEffect &effectInstance, MObject shader );
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
         /** Adds the technique hint and the effect attributes to the collada document. */
         void exportCgfxShaderNode ( COLLADASW::InstanceEffect &effectInstance, cgfxShaderNode *fnNode );
 
@@ -189,6 +192,7 @@ namespace COLLADAMaya
             MObject textureNode, 
             COLLADASW::Sampler::SamplerType samplerType, 
             COLLADASW::ValueType::ColladaType samplerValueType );
+#endif
 
     };
 }
