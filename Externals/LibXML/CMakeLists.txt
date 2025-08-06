@@ -10,6 +10,11 @@ add_definitions(
 		-DLIBXML_XPATH_ENABLED
 		-DLIBXML_TREE_ENABLED
 	)
+
+# For Maya plugin builds, avoid DllMain conflict
+if(BUILD_MAYA_PLUGIN)
+	add_definitions(-DLIBXML_STATIC_FOR_DLL)
+endif()
 	
 if(USE_STATIC_MSVC_RUNTIME)
 	foreach(flag CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL
