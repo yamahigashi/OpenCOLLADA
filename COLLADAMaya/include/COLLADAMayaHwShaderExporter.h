@@ -25,13 +25,17 @@
 #include "COLLADASWEffectProfile.h"
 #include "COLLADASWShader.h"
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
 #include "cgfxAttrDef.h"
+#endif
 
 #include <maya/MFnDependencyNode.h>
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
 #if MAYA_API_VERSION >= 201200
 class cgfxTechnique;
 #endif // MAYA_API_VERSION >= 201200
+#endif
 
 namespace COLLADAMaya
 {
@@ -69,12 +73,6 @@ namespace COLLADAMaya
         const COLLADASW::Shader::Scope& getShaderScope () const { return mShaderScope; }
         void setShaderScope ( const COLLADASW::Shader::Scope& val ) { mShaderScope = val; }
 
-        /** Export the current sampler. */
-        void exportSampler ( 
-            MObject shaderNode, 
-            const CGparameter& cgParameter,
-            const bool writeNewParam );
-
         /** Set the filename of the current shader to export. */
         void setShaderFxFileUri ( const COLLADASW::URI& shaderFxFileName );
 
@@ -82,6 +80,13 @@ namespace COLLADAMaya
 
         /** Returns the filename of the current shader fx file. */
         const COLLADASW::URI& getShaderFxFileUri () const;
+
+#ifdef COLLADA_MAYA_CGFX_ENABLED
+        /** Export the current sampler. */
+        void exportSampler ( 
+            MObject shaderNode, 
+            const CGparameter& cgParameter,
+            const bool writeNewParam );
 
         /** Exports the effect data of a cgfxShader node. */
         bool exportCgfxShader ( cgfxShaderNode* shaderNodeCgfx );
@@ -162,6 +167,7 @@ namespace COLLADAMaya
 
         /** Gernerate the program source string. */
         String getProgramSourceString( const char* programSourceCG );
+#endif // COLLADA_MAYA_CGFX_ENABLED
 
     };
 }

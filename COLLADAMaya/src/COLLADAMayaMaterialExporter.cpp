@@ -39,9 +39,10 @@
 #define WIN32
 #endif
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
 #include "cgfxShaderNode.h"
-
 #include <cgfxFindImage.h>
+#endif
 
 namespace COLLADAMaya
 {
@@ -283,6 +284,7 @@ namespace COLLADAMaya
         return &mMaterialMap;
     }
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
     //---------------------------------------
     void MaterialExporter::setSetParam ( const cgfxShaderNode* shaderNodeCgfx, const cgfxAttrDef* attribute )
     {
@@ -612,7 +614,9 @@ namespace COLLADAMaya
             }
         }
     }
+#endif // COLLADA_MAYA_CGFX_ENABLED
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
     //---------------------------------------
     void MaterialExporter::setSetParamTexture (
         const cgfxAttrDef* attribute, 
@@ -684,6 +688,7 @@ namespace COLLADAMaya
         sampler.setImageId ( colladaImage->getImageId() );
         sampler.addInSetParam ( streamWriter );
     }
+#endif // COLLADA_MAYA_CGFX_ENABLED
 
     //---------------------------------------
     void MaterialExporter::exportCustomHwShaderNode( 
@@ -691,14 +696,17 @@ namespace COLLADAMaya
         MObject shader )
     {
         MFnDependencyNode fnNode ( shader );
+#ifdef COLLADA_MAYA_CGFX_ENABLED
         if ( fnNode.typeId() == cgfxShaderNode::sId ) 
         {
             // Add the technique hint and the effect attributes to the collada document.
             exportCgfxShaderNode ( effectInstance, (cgfxShaderNode*) fnNode.userNode () );
         }
+#endif
 
     }
 
+#ifdef COLLADA_MAYA_CGFX_ENABLED
     //---------------------------------------
     void MaterialExporter::exportCgfxShaderNode ( 
         COLLADASW::InstanceEffect& effectInstance, 
@@ -753,6 +761,7 @@ namespace COLLADAMaya
         }
 #endif // MAYA_API_VERSION < 201200
     }
+#endif // COLLADA_MAYA_CGFX_ENABLED
 
     // --------------------------------------
     void MaterialExporter::setShaderFxFileUri( const COLLADASW::URI& shaderFxFileName )
