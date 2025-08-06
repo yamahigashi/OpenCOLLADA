@@ -47,6 +47,11 @@ set(INST_SRC
 	include/COLLADASWLibraryImages.h
 	include/COLLADASWLibraryLights.h
 	include/COLLADASWLibraryMaterials.h
+	include/COLLADASWLibraryNodes.h
+	include/COLLADASWLibraryPhysicsModels.h
+	include/COLLADASWLibraryPhysicsScenes.h
+	include/COLLADASWInstancePhysicsModel.h
+	include/COLLADASWInstanceRigidBody.h
 	include/COLLADASWLibraryVisualScenes.h
 	include/COLLADASWLight.h
 	include/COLLADASWNode.h
@@ -95,6 +100,11 @@ set(SRC
 	src/COLLADASWLibraryAnimationClips.cpp
 	src/COLLADASWExtra.cpp
 	src/COLLADASWLibraryMaterials.cpp
+	src/COLLADASWLibraryNodes.cpp
+	src/COLLADASWLibraryPhysicsModels.cpp
+	src/COLLADASWLibraryPhysicsScenes.cpp
+	src/COLLADASWInstancePhysicsModel.cpp
+	src/COLLADASWInstanceRigidBody.cpp
 	src/COLLADASWBaseElement.cpp
 	src/COLLADASWLibraryEffects.cpp
 	src/COLLADASWExtraTechnique.cpp
