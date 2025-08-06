@@ -22,7 +22,14 @@
 #include "COLLADAMayaExportOptions.h"
 #include "COLLADAMayaSyntax.h"
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+// DAE2MA import disabled for now - requires separate DAE2MA library build
+#ifdef ENABLE_DAE2MA_IMPORT
 #include "DAE2MADocumentImporter.h"
+#endif
 
 // TODO
 #include "COLLADAMayaImportOptions.h"
@@ -408,10 +415,15 @@ namespace COLLADAMaya
         }
 
         // Actually import the document
+#ifdef ENABLE_DAE2MA_IMPORT
 		{
 			DAE2MA::DocumentImporter documentImporter ( importFileName, mayaAsciiFileURI.getURIString (), mayaVersion.c_str () );
 			documentImporter.importCurrentScene ();
 		}
+#else
+		MGlobal::displayError("COLLADA import is not available in this build. DAE2MA library required.");
+		return MS::kFailure;
+#endif
 
         // Display some closing information.
         endClock = clock();
