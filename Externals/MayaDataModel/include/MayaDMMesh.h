@@ -327,17 +327,14 @@ public:
 	}
 	void setPntx(size_t pt_i,float px)
 	{
-		if(px == 0) return;
 		fprintf(mFile,"\tsetAttr \".pt[%i].px\" %f;\n", pt_i,px);
 	}
 	void setPnty(size_t pt_i,float py)
 	{
-		if(py == 0) return;
 		fprintf(mFile,"\tsetAttr \".pt[%i].py\" %f;\n", pt_i,py);
 	}
 	void setPntz(size_t pt_i,float pz)
 	{
-		if(pz == 0) return;
 		fprintf(mFile,"\tsetAttr \".pt[%i].pz\" %f;\n", pt_i,pz);
 	}
 	void setVrts(size_t vt_i,const float3& vt)
@@ -371,17 +368,14 @@ public:
 	}
 	void setVrtx(size_t vt_i,float vx)
 	{
-		if(vx == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".vt[%i].vx\" %f;\n", vt_i,vx);
 	}
 	void setVrty(size_t vt_i,float vy)
 	{
-		if(vy == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".vt[%i].vy\" %f;\n", vt_i,vy);
 	}
 	void setVrtz(size_t vt_i,float vz)
 	{
-		if(vz == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".vt[%i].vz\" %f;\n", vt_i,vz);
 	}
 	void setEdge(size_t ed_i,const long3& ed)
@@ -459,12 +453,10 @@ public:
 	}
 	void setUvpx(size_t uv_i,float ux)
 	{
-		if(ux == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".uv[%i].ux\" %f;\n", uv_i,ux);
 	}
 	void setUvpy(size_t uv_i,float uy)
 	{
-		if(uy == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".uv[%i].uy\" %f;\n", uv_i,uy);
 	}
 	void setColors(size_t clr_i,const Colors& clr)
@@ -500,22 +492,18 @@ public:
 	}
 	void setColorR(size_t clr_i,float clrr)
 	{
-		if(clrr == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".clr[%i].clrr\" %f;\n", clr_i,clrr);
 	}
 	void setColorG(size_t clr_i,float clrg)
 	{
-		if(clrg == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".clr[%i].clrg\" %f;\n", clr_i,clrg);
 	}
 	void setColorB(size_t clr_i,float clrb)
 	{
-		if(clrb == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".clr[%i].clrb\" %f;\n", clr_i,clrb);
 	}
 	void setColorA(size_t clr_i,float clra)
 	{
-		if(clra == 0.0) return;
 		fprintf(mFile,"\tsetAttr \".clr[%i].clra\" %f;\n", clr_i,clra);
 	}
 	void setNormals(size_t n_i,const float3& n)
@@ -638,17 +626,14 @@ public:
 	}
 	void setVertexColorR(size_t vclr_i,float vxcr)
 	{
-		if(vxcr == 0) return;
 		fprintf(mFile,"\tsetAttr \".cpvx.vclr[%i].vrgb.vxcr\" %f;\n", vclr_i,vxcr);
 	}
 	void setVertexColorG(size_t vclr_i,float vxcg)
 	{
-		if(vxcg == 0) return;
 		fprintf(mFile,"\tsetAttr \".cpvx.vclr[%i].vrgb.vxcg\" %f;\n", vclr_i,vxcg);
 	}
 	void setVertexColorB(size_t vclr_i,float vxcb)
 	{
-		if(vxcb == 0) return;
 		fprintf(mFile,"\tsetAttr \".cpvx.vclr[%i].vrgb.vxcb\" %f;\n", vclr_i,vxcb);
 	}
 	void setVertexAlpha(size_t vclr_i,float vxal)
@@ -695,17 +680,14 @@ public:
 	}
 	void setVertexFaceColorR(size_t vclr_i,size_t vfcl_i,float vfcr)
 	{
-		if(vfcr == 0) return;
 		fprintf(mFile,"\tsetAttr \".cpvx.vclr[%i].vfcl[%i].frgb.vfcr\" %f;\n", vclr_i,vfcl_i,vfcr);
 	}
 	void setVertexFaceColorG(size_t vclr_i,size_t vfcl_i,float vfcg)
 	{
-		if(vfcg == 0) return;
 		fprintf(mFile,"\tsetAttr \".cpvx.vclr[%i].vfcl[%i].frgb.vfcg\" %f;\n", vclr_i,vfcl_i,vfcg);
 	}
 	void setVertexFaceColorB(size_t vclr_i,size_t vfcl_i,float vfcb)
 	{
-		if(vfcb == 0) return;
 		fprintf(mFile,"\tsetAttr \".cpvx.vclr[%i].vfcl[%i].frgb.vfcb\" %f;\n", vclr_i,vfcl_i,vfcb);
 	}
 	void setVertexFaceAlpha(size_t vclr_i,size_t vfcl_i,float vfal)
