@@ -183,7 +183,6 @@ namespace GeneratedSaxParser
 	FloatingPointType Utils::toFloatingPoint(const ParserChar** buffer, const ParserChar* bufferEnd, bool& failed)
 	{
 		const ParserChar* s = *buffer;
-		const ParserChar* tokenStart = s;
 
 		if ( !s )
 		{
