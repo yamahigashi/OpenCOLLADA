@@ -865,7 +865,7 @@ namespace GeneratedSaxParser
               // 旧フラグメントを先頭へコピー
               if (oldPrefixChars) {
                 memcpy(combined, oldPrefix, oldPrefixChars * sizeof(ParserChar));
-                mStackMemoryManager.deleteObject(); // 古いフラグメントを解放
+                mStackMemoryManager.deleteObject(); // release old fragment
               }
    
               // 今回の断片を続けてコピー
