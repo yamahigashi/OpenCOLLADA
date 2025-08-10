@@ -183,6 +183,7 @@ namespace GeneratedSaxParser
 	FloatingPointType Utils::toFloatingPoint(const ParserChar** buffer, const ParserChar* bufferEnd, bool& failed)
 	{
 		const ParserChar* s = *buffer;
+
 		if ( !s )
 		{
 			failed = true;
@@ -259,21 +260,12 @@ namespace GeneratedSaxParser
 		{
 			if ( s == bufferEnd )
 			{
-				if (charBeforeDecimalPoint)
-				{
-					failed = false;
-					*buffer = s;
-					return sign * (FloatingPointType)value;
-				}
-				else
-				{
-					failed = true;
-					*buffer = s;
-					return 0.0f;
-				}
+				failed = true;
+				*buffer = s;
+				return 0.0f;
 			}
 
-			if ( isdigit(*s) )
+			if ( is_digit(*s) )
 			{
 				value = value * 10 + (*s - '0');
 				charBeforeDecimalPoint = true;
@@ -284,7 +276,14 @@ namespace GeneratedSaxParser
 		}
 
 		if ( (*s=='.') )
+		{
+			if (s + 1 == bufferEnd) {
+				failed = true;
+				*buffer = bufferEnd;
+				return 0;
+			}
 			++s;
+		}
 
 		int power = 0;
 		bool charAfterDecimalPoint = false;
@@ -292,21 +291,12 @@ namespace GeneratedSaxParser
 		{
 			if ( s == bufferEnd )
 			{
-				if ( charBeforeDecimalPoint || charAfterDecimalPoint )
-				{
-					failed = false;
-					*buffer = s;
-					return (FloatingPointType)value * pow((FloatingPointType)10, (FloatingPointType)power) * sign;
-				}
-				else
-				{
 					failed = true;
 					*buffer = s;
 					return 0.0f;
-				}
 			}
 
-			if ( isdigit(*s) )
+			if ( Utils::is_digit(*s) )
 			{
 				value = value * 10 + (*s - '0');
 				--power;
@@ -340,6 +330,7 @@ namespace GeneratedSaxParser
 
 		failed = false;
 		*buffer = s;
+
 		return (FloatingPointType)value * pow((FloatingPointType)10, (FloatingPointType)power) * sign;
 	}
 

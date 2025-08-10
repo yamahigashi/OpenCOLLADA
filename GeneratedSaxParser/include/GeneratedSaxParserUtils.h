@@ -47,13 +47,28 @@ namespace GeneratedSaxParser
 			return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
 		}
 
-        /** Checks if all characters in buffer are whitspaces. */
-        static bool isWhiteSpaceOnly(const ParserChar* buffer, size_t length);
-
-        static bool isdigit(ParserChar c)
+		/** Safe digit check to avoid undefined behavior with negative char values */
+		static bool is_digit(ParserChar c)
 		{
 			return (c >= '0' && c <= '9');
 		}
+
+		/** Safe string comparison for ParserChar strings */
+		static bool isStringEqual(const ParserChar* str1, const char* str2)
+		{
+			while (*str2 != '\0')
+			{
+				if (*str1 != *str2) return false;
+				++str1;
+				++str2;
+			}
+			return *str1 == '\0';
+		}
+
+        /** Checks if all characters in buffer are whitspaces. */
+        static bool isWhiteSpaceOnly(const ParserChar* buffer, size_t length);
+
+        // Removed duplicate - use is_digit instead
 
 
         /**
@@ -62,7 +77,7 @@ namespace GeneratedSaxParser
          * @param src Source buffer (-> content of error message).
          * @param maxLen Length of dest -1.
          */
-        static void fillErrorMsg(ParserChar* dest, const ParserChar* src, size_t maxLen);
+        static void fillErrorMsg(ParserChar* dest, const ParserChar* src, size_t capacity);
 
 
 		/** Converts the first string representing a floating point number within a ParserChar buffer to a 
@@ -471,9 +486,8 @@ namespace GeneratedSaxParser
 											  BaseType (*baseConversionFunctionPtr)(const ParserChar* buffer, bool& failed) )
 	{
 		// convert string to base type
-		bool baseConversionFailed = false;
 		BaseType baseValue = baseConversionFunctionPtr(buffer, failed);
-		if ( baseConversionFailed )
+		if ( failed )
 		{
 			failed = true;
 			return EnumMapCount;
@@ -504,9 +518,8 @@ namespace GeneratedSaxParser
         BaseType (*baseConversionFunctionPtr)(const ParserChar** buffer, const ParserChar* bufferEnd, bool& failed) )
     {
         // convert string to base type
-        bool baseConversionFailed = false;
         BaseType baseValue = baseConversionFunctionPtr(buffer, bufferEnd, failed);
-        if ( baseConversionFailed )
+        if ( failed )
         {
             failed = true;
             return EnumMapCount;
@@ -529,6 +542,6 @@ namespace GeneratedSaxParser
     }
 
 
-} // namespace COLLADASAXPARSER
+} // namespace GeneratedSaxParser
 
 #endif // __GENERATEDSAXPARSER_UTILS_H__

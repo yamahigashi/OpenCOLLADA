@@ -349,7 +349,7 @@ namespace GeneratedSaxParser
 
         //find first whitespace in buffer
         const ParserChar* bufferPos = *buffer;
-        while ( !Utils::isWhiteSpace(*bufferPos) )
+        while ( bufferPos < bufferEnd && !Utils::isWhiteSpace(*bufferPos) )
             ++bufferPos;
 
         size_t prefixBufferSize = prefixBufferPos - prefixBufferStartPos;
@@ -361,7 +361,13 @@ namespace GeneratedSaxParser
         newBuffer[newBufferSize] = ' ';
         ParserChar* newBufferPostParse = newBuffer;
         EnumType value = toEnum( (const ParserChar**)&newBufferPostParse, newBuffer + newBufferSize + 1, failed, enumMap, baseConversionFunctionPtr);
-        *buffer += (newBufferPostParse - newBuffer - prefixBufferSize);
+        size_t consumed_total = static_cast<size_t>(newBufferPostParse - newBuffer); // prefix + 実データ + （場合により）ダミー空白
+        size_t consumed_from_buffer_part =
+          (consumed_total > prefixBufferSize) ? (consumed_total - prefixBufferSize) : 0;
+        if (consumed_from_buffer_part > bufferSize) {
+          consumed_from_buffer_part = bufferSize;
+        }
+        *buffer += consumed_from_buffer_part;
         return value;
     }
 
@@ -391,7 +397,7 @@ namespace GeneratedSaxParser
 
         //find first whitespace in buffer
         const ParserChar* bufferPos = *buffer;
-        while ( !Utils::isWhiteSpace(*bufferPos) && bufferPos < bufferEnd )
+        while ( bufferPos < bufferEnd && !Utils::isWhiteSpace(*bufferPos) )
             ++bufferPos;
 
         size_t prefixBufferSize = prefixBufferPos - prefixBufferStartPos;
@@ -403,7 +409,13 @@ namespace GeneratedSaxParser
         newBuffer[newBufferSize] = ' ';
         ParserChar* newBufferPostParse = newBuffer;
         DataType value = toData( (const ParserChar**)&newBufferPostParse, newBuffer + newBufferSize + 1, failed);
-        *buffer += (newBufferPostParse - newBuffer - prefixBufferSize);
+        size_t consumed_total = static_cast<size_t>(newBufferPostParse - newBuffer); // prefix + actual data + (in some cases) dummy whitespace
+        size_t consumed_from_buffer_part =
+          (consumed_total > prefixBufferSize) ? (consumed_total - prefixBufferSize) : 0;
+        if (consumed_from_buffer_part > bufferSize) {
+          consumed_from_buffer_part = bufferSize;
+        }
+        *buffer += consumed_from_buffer_part;
         // note: we cannot delete that object here because
         // DataType maybe ParserString and this deleteObject call
         // would delete the string ParserString::str points at.
@@ -437,7 +449,7 @@ namespace GeneratedSaxParser
 
         //find first whitespace in buffer
         const ParserChar* bufferPos = *buffer;
-        while ( !Utils::isWhiteSpace(*bufferPos) )
+        while ( bufferPos < bufferEnd && !Utils::isWhiteSpace(*bufferPos) )
             ++bufferPos;
 
         size_t prefixBufferSize = prefixBufferPos - prefixBufferStartPos;
@@ -449,7 +461,13 @@ namespace GeneratedSaxParser
         newBuffer[newBufferSize] = ' ';
         ParserChar* newBufferPostParse = newBuffer;
         DataType value = toData( (const ParserChar**)&newBufferPostParse, newBuffer + newBufferSize + 1, failed);
-        *buffer += (newBufferPostParse - newBuffer - prefixBufferSize);
+        size_t consumed_total = static_cast<size_t>(newBufferPostParse - newBuffer); // prefix + actual data + (in some cases) dummy whitespace
+        size_t consumed_from_buffer_part =
+          (consumed_total > prefixBufferSize) ? (consumed_total - prefixBufferSize) : 0;
+        if (consumed_from_buffer_part > bufferSize) {
+          consumed_from_buffer_part = bufferSize;
+        }
+        *buffer += consumed_from_buffer_part;
 
         // see comment in overloaded method
         //mStackMemoryManager.deleteObject();

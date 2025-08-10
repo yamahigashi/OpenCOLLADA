@@ -845,26 +845,37 @@ namespace GeneratedSaxParser
             // we reached the end of the buffer while parsing.
             // we pass the already parsed typed values
             // we need to store the not parsed fraction
-            size_t fragmentSize = (dataBufferPos - lastDataBufferIndex)*sizeof(ParserChar);
-            if (!Utils::isWhiteSpaceOnly(lastDataBufferIndex, fragmentSize))
-            {
-                // if mLastIncompleteFragmentInCharacterData == 0 -> list with one element
-                if ( callsToDataFunc == 0 && mLastIncompleteFragmentInCharacterData != 0 )
-                {
-                    // special case: last inclomplete fragment has to be reused
-                    size_t oldPrefixDataSize = mEndOfDataInCurrentObjectOnStack - mLastIncompleteFragmentInCharacterData - 1;
-                    mStackMemoryManager.deleteObject(); //mLastIncompleteFragmentInCharacterData
-                    mLastIncompleteFragmentInCharacterData = (ParserChar*)mStackMemoryManager.newObject(fragmentSize + 1 + oldPrefixDataSize);
-                    memcpy(mLastIncompleteFragmentInCharacterData + oldPrefixDataSize, lastDataBufferIndex, fragmentSize);
-                    mEndOfDataInCurrentObjectOnStack = mLastIncompleteFragmentInCharacterData + fragmentSize + oldPrefixDataSize;
-
-                }
-                else
-                {
-                    mLastIncompleteFragmentInCharacterData = (ParserChar*)mStackMemoryManager.newObject(fragmentSize + 1);
-                    memcpy(mLastIncompleteFragmentInCharacterData, lastDataBufferIndex, fragmentSize);
-                    mEndOfDataInCurrentObjectOnStack = mLastIncompleteFragmentInCharacterData + fragmentSize;
-                }
+            size_t fragmentChars = static_cast<size_t>(dataBufferPos - lastDataBufferIndex);
+   
+            if (!Utils::isWhiteSpaceOnly(lastDataBufferIndex, fragmentChars)) {
+              size_t oldPrefixChars = 0;
+              const ParserChar* oldPrefix = mLastIncompleteFragmentInCharacterData;
+   
+              if (callsToDataFunc == 0 && mLastIncompleteFragmentInCharacterData != 0) {
+                // 前回フラグメント長は -1 しない。終端ポインタとの差が長さ。
+                oldPrefixChars = static_cast<size_t>(mEndOfDataInCurrentObjectOnStack
+                    - mLastIncompleteFragmentInCharacterData);
+              }
+   
+              // 新しい結合バッファを確保（前回 + 今回 + 余白1）
+              ParserChar* combined =
+                (ParserChar*)mStackMemoryManager.newObject(
+                    (oldPrefixChars + fragmentChars + 1) * sizeof(ParserChar));
+   
+              // 旧フラグメントを先頭へコピー
+              if (oldPrefixChars) {
+                memcpy(combined, oldPrefix, oldPrefixChars * sizeof(ParserChar));
+                mStackMemoryManager.deleteObject(); // release old fragment
+              }
+   
+              // 今回の断片を続けてコピー
+              memcpy(combined + oldPrefixChars,
+                  lastDataBufferIndex,
+                  fragmentChars * sizeof(ParserChar));
+   
+              // ポインタを差し替え
+              mLastIncompleteFragmentInCharacterData = combined;
+              mEndOfDataInCurrentObjectOnStack = combined + oldPrefixChars + fragmentChars;
             }
             else
             {
@@ -1009,25 +1020,28 @@ namespace GeneratedSaxParser
             }
             mStackMemoryManager.deleteObject();
 
-            size_t fragmentSize = (dataBufferPos - lastDataBufferIndex)*sizeof(ParserChar);
-            if (!Utils::isWhiteSpaceOnly(lastDataBufferIndex, fragmentSize))
-            {
-                if (callsToDataFunc == 0)
-                {
-                    // special case: last inclomplete fragment has to be reused
-                    size_t oldPrefixDataSize = mEndOfDataInCurrentObjectOnStack - mLastIncompleteFragmentInCharacterData;
-                    mStackMemoryManager.deleteObject(); //mLastIncompleteFragmentInCharacterData
-                    mLastIncompleteFragmentInCharacterData = (ParserChar*)mStackMemoryManager.newObject(fragmentSize + 1 + oldPrefixDataSize);
-                    memcpy(mLastIncompleteFragmentInCharacterData + oldPrefixDataSize, lastDataBufferIndex, fragmentSize);
-                    mEndOfDataInCurrentObjectOnStack = mLastIncompleteFragmentInCharacterData + fragmentSize + oldPrefixDataSize;
+            size_t fragmentChars = static_cast<size_t>(dataBufferPos - lastDataBufferIndex);
+            if (!Utils::isWhiteSpaceOnly(lastDataBufferIndex, fragmentChars)) {
+              size_t oldPrefixChars = 0;
+              const ParserChar* oldPrefix = mLastIncompleteFragmentInCharacterData;
+              if (callsToDataFunc == 0 && oldPrefix) {
+                oldPrefixChars = static_cast<size_t>(mEndOfDataInCurrentObjectOnStack - oldPrefix);
+              }
 
-                }
-                else
-                {
-                    mLastIncompleteFragmentInCharacterData = (ParserChar*)mStackMemoryManager.newObject(fragmentSize + 1);
-                    memcpy(mLastIncompleteFragmentInCharacterData, lastDataBufferIndex, fragmentSize);
-                    mEndOfDataInCurrentObjectOnStack = mLastIncompleteFragmentInCharacterData + fragmentSize;
-                }
+              ParserChar* combined = (ParserChar*)mStackMemoryManager.newObject(
+                  (oldPrefixChars + fragmentChars + 1) * sizeof(ParserChar));
+
+              if (oldPrefixChars) {
+                memcpy(combined, oldPrefix, oldPrefixChars * sizeof(ParserChar));
+                mStackMemoryManager.deleteObject(); // 旧断片を解放
+                memcpy(combined, oldPrefix, oldPrefixChars * sizeof(ParserChar));
+                mStackMemoryManager.deleteObject(); // release old fragment
+              }
+              memcpy(combined + oldPrefixChars, lastDataBufferIndex, fragmentChars * sizeof(ParserChar));
+              combined[oldPrefixChars + fragmentChars] = '\0'; // Add NUL termination as described in #3 below
+
+              mLastIncompleteFragmentInCharacterData = combined;
+              mEndOfDataInCurrentObjectOnStack = combined + oldPrefixChars + fragmentChars;
             }
             else
             {
