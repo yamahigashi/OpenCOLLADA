@@ -296,7 +296,7 @@ namespace GeneratedSaxParser
 					return 0.0f;
 			}
 
-			if ( isdigit(*s) )
+			if ( Utils::is_digit(*s) )
 			{
 				value = value * 10 + (*s - '0');
 				--power;
