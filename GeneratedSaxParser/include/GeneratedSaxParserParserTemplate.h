@@ -1034,6 +1034,8 @@ namespace GeneratedSaxParser
               if (oldPrefixChars) {
                 memcpy(combined, oldPrefix, oldPrefixChars * sizeof(ParserChar));
                 mStackMemoryManager.deleteObject(); // 旧断片を解放
+                memcpy(combined, oldPrefix, oldPrefixChars * sizeof(ParserChar));
+                mStackMemoryManager.deleteObject(); // release old fragment
               }
               memcpy(combined + oldPrefixChars, lastDataBufferIndex, fragmentChars * sizeof(ParserChar));
               combined[oldPrefixChars + fragmentChars] = '\0'; // 後述の #3 のために NUL 終端も付ける
