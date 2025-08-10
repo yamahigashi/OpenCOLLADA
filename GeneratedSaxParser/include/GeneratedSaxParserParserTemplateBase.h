@@ -461,7 +461,7 @@ namespace GeneratedSaxParser
         newBuffer[newBufferSize] = ' ';
         ParserChar* newBufferPostParse = newBuffer;
         DataType value = toData( (const ParserChar**)&newBufferPostParse, newBuffer + newBufferSize + 1, failed);
-        size_t consumed_total = static_cast<size_t>(newBufferPostParse - newBuffer); // prefix + 実データ + （場合により）ダミー空白
+        size_t consumed_total = static_cast<size_t>(newBufferPostParse - newBuffer); // prefix + actual data + (in some cases) dummy whitespace
         size_t consumed_from_buffer_part =
           (consumed_total > prefixBufferSize) ? (consumed_total - prefixBufferSize) : 0;
         if (consumed_from_buffer_part > bufferSize) {
