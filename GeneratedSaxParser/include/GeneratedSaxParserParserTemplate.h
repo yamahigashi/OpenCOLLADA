@@ -1038,7 +1038,7 @@ namespace GeneratedSaxParser
                 mStackMemoryManager.deleteObject(); // release old fragment
               }
               memcpy(combined + oldPrefixChars, lastDataBufferIndex, fragmentChars * sizeof(ParserChar));
-              combined[oldPrefixChars + fragmentChars] = '\0'; // 後述の #3 のために NUL 終端も付ける
+              combined[oldPrefixChars + fragmentChars] = '\0'; // Add NUL termination as described in #3 below
 
               mLastIncompleteFragmentInCharacterData = combined;
               mEndOfDataInCurrentObjectOnStack = combined + oldPrefixChars + fragmentChars;
