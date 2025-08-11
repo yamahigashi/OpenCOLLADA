@@ -260,9 +260,18 @@ namespace GeneratedSaxParser
 		{
 			if ( s == bufferEnd )
 			{
-				failed = true;
-				*buffer = s;
-				return 0.0f;
+				if (charBeforeDecimalPoint)
+				{
+					failed = false;
+					*buffer = s;
+					return sign * (FloatingPointType)value;
+				}
+				else
+				{
+					failed = true;
+					*buffer = s;
+					return 0.0f;
+				}
 			}
 
 			if ( is_digit(*s) )
@@ -276,14 +285,7 @@ namespace GeneratedSaxParser
 		}
 
 		if ( (*s=='.') )
-		{
-			if (s + 1 == bufferEnd) {
-				failed = true;
-				*buffer = bufferEnd;
-				return 0;
-			}
 			++s;
-		}
 
 		int power = 0;
 		bool charAfterDecimalPoint = false;
@@ -291,9 +293,18 @@ namespace GeneratedSaxParser
 		{
 			if ( s == bufferEnd )
 			{
+				if ( charBeforeDecimalPoint || charAfterDecimalPoint )
+				{
+					failed = false;
+					*buffer = s;
+					return (FloatingPointType)value * pow((FloatingPointType)10, (FloatingPointType)power) * sign;
+				}
+				else
+				{
 					failed = true;
 					*buffer = s;
 					return 0.0f;
+				}
 			}
 
 			if ( Utils::is_digit(*s) )
