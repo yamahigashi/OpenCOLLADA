@@ -1,20 +1,43 @@
 @echo off
 REM Build script for COLLADAMaya plugin
 
-setlocal
+setlocal enabledelayedexpansion
 
-REM Set default Maya version if not specified
+pushd %~dp0
+set PFX=%cd%
+call :deploy
+goto :eof
+
+REM If no argument is provided, build for all supported Maya versions
+REM Otherwise, build for the specified version
 if "%1"=="" (
+    set MAYA_VERSION=2026
+    call :build_for_maya %MAYA_VERSION%
+    set MAYA_VERSION=2025
+    call :build_for_maya %MAYA_VERSION%
     set MAYA_VERSION=2024
+    call :build_for_maya %MAYA_VERSION%
+    set MAYA_VERSION=2023
+    call :build_for_maya %MAYA_VERSION%
+    set MAYA_VERSION=2022
+    call :build_for_maya %MAYA_VERSION%
+    set MAYA_VERSION=2020
+    call :build_for_maya %MAYA_VERSION%
+
 ) else (
     set MAYA_VERSION=%1
+    call :build_for_maya %MAYA_VERSION%
 )
+
+goto :eof
+
+
+REM --------------------------------------------------------------------------
+:build_for_maya
 
 echo Building COLLADAMaya plugin for Maya %MAYA_VERSION%
 echo ================================================
 
-REM Set Maya environment variables
-call set_maya_env.bat
 
 REM Try to get Maya installation path from registry
 set MAYA_INSTALL_BASE_PATH=
@@ -61,10 +84,12 @@ cmake -G "Visual Studio 17 2022" -A x64 ^
       -DMAYA_INSTALL_BASE_PATH="%MAYA_INSTALL_BASE_PATH%" ^
       -DUSE_STATIC=ON ^
       -DUSE_LIBXML=ON ^
+      -DCMAKE_INSTALL_PREFIX="..\..\maya_module" ^
       ..
 
 if %ERRORLEVEL% NEQ 0 (
     echo ERROR: CMake configuration failed!
+    cd ..
     exit /b 1
 )
 
@@ -74,13 +99,60 @@ cmake --build . --config Release --target COLLADAMaya
 
 if %ERRORLEVEL% NEQ 0 (
     echo ERROR: Build failed!
+    cd ..
     exit /b 1
 )
+
+REM Return to parent directory after successful build
+cd ..
+exit /b 0
+
+REM --------------------------------------------------------------------------
+:deploy
+REM --------------------------------------------------------------------------
+echo Deploying to Maya module folder
+cd /d %PFX%\maya_module
+set zipfile=COLLADAMaya_maya_module_win64_all_version.zip
+set source1=COLLADAMaya
+set source2=COLLADAMaya.mod
+if exist %zipfile% del %zipfile%
+echo Creating zip package %zipfile%...
+PowerShell -Command "& {Compress-Archive -LiteralPath '%source1%', '%source2%' -DestinationPath '%zipfile%'}"
+
+for %%v in (2026 2025 2024 2023 2022 2020) do (
+    set mllpath=%PFX%\maya_module\COLLADAMaya\platforms\win64\%%v\plug-ins\COLLADAMaya.mll
+    set scriptdir=%PFX%\maya_module\COLLADAMaya\platforms\win64\%%v\scripts
+    echo Checking for COLLADAMaya.mll for Maya %%v at !mllpath!...
+    if exist "!mllpath!" (
+        echo Packaging COLLADAMaya plugin for Maya %%v...
+        set zipfile=COLLADAMaya_maya_module_win64_maya%%v.zip
+        if exist !zipfile! del !zipfile!
+        set source1=!mllpath!
+        set source2=!scriptdir!
+        echo Creating zip package !zipfile! with:
+        echo  - !source1!
+        echo  - !source2!
+        PowerShell -Command "& {Compress-Archive -LiteralPath '!source1!', '!source2!' -DestinationPath '!zipfile!'}"
+
+    ) else (
+        echo WARNING: COLLADAMaya.mll for Maya %%v not found, skipping...
+    )
+)
+exit /b 0
+
+REM --------------------------------------------------------------------------
+:eof
+echo Build process completed.
+REM --------------------------------------------------------------------------
 
 echo.
 echo ================================================
 echo Build completed successfully!
-echo Plugin installed to: %MAYA_INSTALL_BASE_PATH%\Maya%MAYA_VERSION%\bin\plug-ins\COLLADAMaya.mll
+echo Plugin package created: %PFX%\maya_module\%zipfile%
+echo.
+echo You can extract the contents of the zip file to your Maya modules directory.
+echo The default location is usually:
+echo %USERPROFILE%\Documents\maya\modules
 echo.
 echo To use the plugin:
 echo 1. Open Maya %MAYA_VERSION%
