@@ -17,6 +17,27 @@ endif()
 # Add cmake module path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+# Detect architecture
+if(WIN32)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(COLLADAMAYA_ARCHITECTURE "win64")
+    else()
+        set(COLLADAMAYA_ARCHITECTURE "win32")
+    endif()
+elseif(APPLE)
+    set(COLLADAMAYA_ARCHITECTURE "mac64")
+else()
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(COLLADAMAYA_ARCHITECTURE "linux64")
+    else()
+        set(COLLADAMAYA_ARCHITECTURE "linux32")
+    endif()
+endif()
+
+# Define module output directories
+set(COLLADAMAYA_MODULE_ROOT "${CMAKE_SOURCE_DIR}/maya_module/COLLADAMaya/platforms")
+set(COLLADAMAYA_OUTPUT_DIR "${COLLADAMAYA_MODULE_ROOT}/${COLLADAMAYA_ARCHITECTURE}/${MAYA_VERSION}")
+
 # Find Maya
 find_package(Maya REQUIRED)
 
@@ -164,6 +185,14 @@ if(BUILD_MAYA_PLUGIN)
         target_compile_definitions(COLLADAMaya PRIVATE ENABLE_DAE2MA_IMPORT)
     endif()
     
+    # Set output directories for module structure
+    set_target_properties(COLLADAMaya PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${COLLADAMAYA_OUTPUT_DIR}/plug-ins"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${COLLADAMAYA_OUTPUT_DIR}/plug-ins"
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${COLLADAMAYA_OUTPUT_DIR}/plug-ins"
+        LIBRARY_OUTPUT_DIRECTORY_DEBUG "${COLLADAMAYA_OUTPUT_DIR}/plug-ins"
+    )
+    
     # Set additional properties for Windows
     if(WIN32)
         # Add Windows-specific compile definitions
@@ -171,41 +200,30 @@ if(BUILD_MAYA_PLUGIN)
             WIN32 NDEBUG _WINDOWS _USRDLL NT_PLUGIN REQUIRE_IOSTREAM LIBXML_STATIC
         )
         
-        set_target_properties(COLLADAMaya PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/bin/win/${CMAKE_VS_PLATFORM_NAME}/ReleasePlugin${MAYA_VERSION}"
-            RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/bin/win/${CMAKE_VS_PLATFORM_NAME}/DebugPlugin${MAYA_VERSION}"
-        )
-        
-        # # Add post-build command to copy to Maya installation
-        # add_custom_command(TARGET COLLADAMaya POST_BUILD
-        #     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        #         $<TARGET_FILE:COLLADAMaya>
-        #         "${MAYA_VERSION}/plug-ins/"
-        #     COMMENT "Copying COLLADAMaya.mll to ${MAYA_VERSION} plug-ins directory"
-        # )
-        # 
-        # # Copy MEL scripts
-        # add_custom_command(TARGET COLLADAMaya POST_BUILD
-        #     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        #         "${CMAKE_CURRENT_SOURCE_DIR}/scripts/openColladaExporterOpts.mel"
-        #         "${MAYA_VERSION}/scripts/others/"
-        #     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        #         "${CMAKE_CURRENT_SOURCE_DIR}/scripts/openColladaImporterOpts.mel"
-        #         "${MAYA_VERSION}/scripts/others/"
-        #     COMMENT "Copying MEL scripts to Maya ${MAYA_VERSION}"
-        # )
     endif()
     
-    # Installation rules
+    # Post-build commands to copy MEL scripts to module directory
+    add_custom_command(TARGET COLLADAMaya POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${COLLADAMAYA_OUTPUT_DIR}/scripts"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/scripts/openColladaExporterOpts.mel"
+            "${COLLADAMAYA_OUTPUT_DIR}/scripts/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/scripts/openColladaImporterOpts.mel"
+            "${COLLADAMAYA_OUTPUT_DIR}/scripts/"
+        COMMENT "Copying MEL scripts to module directory: ${COLLADAMAYA_OUTPUT_DIR}/scripts"
+    )
+    
+    # Installation rules for module structure
     install(TARGETS COLLADAMaya
-        LIBRARY DESTINATION "${MAYA_LOCATION}/bin/plug-ins"
-        RUNTIME DESTINATION "${MAYA_LOCATION}/bin/plug-ins"
+        LIBRARY DESTINATION "${COLLADAMAYA_OUTPUT_DIR}/plug-ins"
+        RUNTIME DESTINATION "${COLLADAMAYA_OUTPUT_DIR}/plug-ins"
     )
     
     install(FILES 
         scripts/openColladaExporterOpts.mel
         scripts/openColladaImporterOpts.mel
-        DESTINATION "${MAYA_LOCATION}/scripts/others"
+        DESTINATION "${COLLADAMAYA_OUTPUT_DIR}/scripts"
     )
 endif()
 
@@ -245,11 +263,15 @@ if(BUILD_MAYA_CONSOLE)
     
     target_link_libraries(COLLADAMayaConsole ${COLLADAMAYA_CONSOLE_LINK_LIBS})
     
+    # Set output directories for console application
+    set_target_properties(COLLADAMayaConsole PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${COLLADAMAYA_OUTPUT_DIR}/bin"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${COLLADAMAYA_OUTPUT_DIR}/bin"
+    )
+    
     if(WIN32)
         set_target_properties(COLLADAMayaConsole PROPERTIES
             COMPILE_DEFINITIONS "WIN32;NDEBUG;_CONSOLE"
-            RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}/bin/win/${CMAKE_VS_PLATFORM_NAME}/ReleaseConsole${MAYA_VERSION}"
-            RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}/bin/win/${CMAKE_VS_PLATFORM_NAME}/DebugConsole${MAYA_VERSION}"
         )
     endif()
     
@@ -263,6 +285,10 @@ message(STATUS "====================================")
 message(STATUS "COLLADAMaya Configuration:")
 message(STATUS "  Maya Version: ${MAYA_VERSION}")
 message(STATUS "  Maya Location: ${MAYA_LOCATION}")
+message(STATUS "  Architecture: ${COLLADAMAYA_ARCHITECTURE}")
+message(STATUS "  Module Output: ${COLLADAMAYA_OUTPUT_DIR}")
 message(STATUS "  Build Plugin: ${BUILD_MAYA_PLUGIN}")
 message(STATUS "  Build Console: ${BUILD_MAYA_CONSOLE}")
+message(STATUS "  CgFx Support: ${ENABLE_CGFX_SUPPORT}")
+message(STATUS "  DAE2MA Import: ${ENABLE_DAE2MA_IMPORT}")
 message(STATUS "====================================")
